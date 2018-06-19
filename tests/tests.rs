@@ -8,6 +8,16 @@ struct Spam(i32);
 #[typed_index(Spam)]
 struct SpamIdx(usize);
 
+impl ::std::ops::Index<
+    ::std::ops::Range<SpamIdx>
+> for ::std::net::IpAddr {
+    type Output = ();
+
+    fn index(&self, index: SpamIdx) -> &() {
+        unimplemented!()
+    }
+}
+
 #[test]
 fn indexing() {
     let idx = SpamIdx(0);
@@ -27,6 +37,28 @@ fn indexing() {
     let mut xs: Vec<Spam> = vec![Spam(10), Spam(20)];
     let spam: &mut Spam = &mut xs[idx];
     assert_eq!(spam, &Spam(10));
+}
+
+#[test]
+fn get() {
+    let idx = SpamIdx(0);
+
+    let xs: &[Spam] = &[Spam(10), Spam(20)];
+    assert_eq!(idx.get(xs), Some(&Spam(10)));
+
+    let xs: &mut [Spam] = &mut [Spam(10), Spam(20)];
+    assert_eq!(idx.get_mut(xs), Some(&mut Spam(10)));
+
+    let xs: Vec<Spam> = vec![Spam(10), Spam(20)];
+    assert_eq!(idx.get(&xs), Some(&Spam(10)));
+
+    let mut xs: Vec<Spam> = vec![Spam(10), Spam(20)];
+    assert_eq!(idx.get_mut(&mut xs), Some(&mut Spam(10)));
+
+    let out_of_bounds = SpamIdx(92);
+    let mut xs: Vec<Spam> = vec![Spam(10), Spam(20)];
+    assert_eq!(out_of_bounds.get(&xs), None);
+    assert_eq!(out_of_bounds.get_mut(&mut xs), None);
 }
 
 

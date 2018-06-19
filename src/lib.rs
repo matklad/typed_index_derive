@@ -29,12 +29,18 @@
 //!     let idx: SpamIdx = 1.into();
 //!     assert_eq!(usize::from(idx), 1);
 //!
-//!     // We can index `Vec<Spam>` with SpamIdx
+//!     // We can index `Vec<Spam>` with `SpamIdx`
 //!     assert_eq!(&spams[idx].0, "bar");
 //!
 //!     // However, we can't index `Vec<usize>`
 //!     // vec![1, 2, 3][idx]
 //!     // error: slice indices are of type `usize` or ranges of `usize`
+//!
+//!     // Similarly to `<[Spam]>::get`, `SpamIdx::get`/`SpamIdx::get_mut`
+//!     // returns `None` if it's out of bounds. Note that the receiver and
+//!     // argument are flipped.
+//!     let oob: SpamIdx = 92.into();
+//!     assert!(oob.get(&spams).is_none());
 //!
 //!     // You can add/subtract `usize` from an index
 //!     assert_eq!(&spams[idx - 1].0, "foo");
@@ -62,6 +68,16 @@ pub fn derive_typed_index(input: proc_macro::TokenStream) -> proc_macro::TokenSt
     let index_ty = get_index_ty(&input.data);
 
     let expanded = quote! {
+        impl #name {
+            pub fn get(self, xs: &[#ty_name]) -> Option<&#ty_name> {
+                xs.get(self.0 as usize)
+            }
+
+            pub fn get_mut(self, xs: &mut [#ty_name]) -> Option<&mut #ty_name> {
+                xs.get_mut(self.0 as usize)
+            }
+        }
+
         impl ::std::ops::Index<#name> for [#ty_name] {
             type Output = #ty_name;
 
