@@ -8,16 +8,6 @@ struct Spam(i32);
 #[typed_index(Spam)]
 struct SpamIdx(usize);
 
-impl ::std::ops::Index<
-    ::std::ops::Range<SpamIdx>
-> for ::std::net::IpAddr {
-    type Output = ();
-
-    fn index(&self, index: SpamIdx) -> &() {
-        unimplemented!()
-    }
-}
-
 #[test]
 fn indexing() {
     let idx = SpamIdx(0);
